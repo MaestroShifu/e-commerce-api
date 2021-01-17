@@ -1,0 +1,9 @@
+{
+  "name": "e-commerce",
+  "version": "1.0.0",
+  "description": "Api e-commerce ",
+  "main": "index.js",
+  "repository": "https://github.com/MaestroShifu/e-commerce-api",
+  "author": "MaestroShifu",
+  "license": "MIT"
+}
