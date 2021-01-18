@@ -1,13 +1,21 @@
-const express = require( "express" );
-const app = express();
-const port = 8080; // default port to listen
+import startApp from "./infrastructure/webserver/server";
 
-// define a route handler for the default home page
-app.get( "/", (req: any, res: any ) => {
-    res.send( "Hello world!" );
-} );
+const startServer = async () => {
+    const server = await startApp();
 
-// start the Express server
-app.listen( port, () => {
-    console.log( `server started at http://localhost:${ port }` );
-});
+    const closeServer = () => {
+        if(server) {
+            // tslint:disable-next-line: no-console
+            console.log('Servidor cerrado papu :v');
+            process.exit(1);
+        }
+    };
+    // Se llama cuando se crece la lista de excepciones no controladas
+    process.on('uncaughtException', closeServer);
+    // Se llama cuando la aplicacion se encuentra en un estadoo indefinido
+    process.on('unhandledRejection', closeServer);
+    // Se llama cuando se cierra la terminal
+    process.on('SIGTERM', closeServer);
+};
+
+startServer();

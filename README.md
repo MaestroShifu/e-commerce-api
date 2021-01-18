@@ -11,3 +11,8 @@
 - Crear transpilado de ts a js: ```yarn build```
 - Para revisar sintaxis del codigo: ```yarn tslint```
 - Sirve para correr los test: ```yarn test```
+
+## Manejar tslint VScode
+- Menu de comandos: ```Ctrl + Shift + P```
+- Seleccionamos la siguiente opcion: ```TSLint: Manage workspace library execution"```
+- En el siguiente menu seleccionamos la opcion: ```enable workspace library execution```
