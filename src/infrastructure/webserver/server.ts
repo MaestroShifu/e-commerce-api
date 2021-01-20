@@ -5,7 +5,9 @@ import bodyParser from 'body-parser';
 import xss from 'xss-clean';
 import compression from 'compression';
 import cors from 'cors';
+import config from '../config/config';
 
+const { PORT } = config;
 const app = express();
 
 // Set security Http headers
@@ -23,9 +25,9 @@ app.use(cors());
 app.options('*', cors());
 
 const startApp = async (): Promise<http.Server> => {
-    const server = app.listen(5000, () => {
+    const server = app.listen(PORT, () => {
         // tslint:disable-next-line: no-console
-        console.log(`Servidor listo, corre en el puerto: ${5000}`);
+        console.log(`Servidor listo, corre en el puerto: ${PORT}`);
     });
     return server;
 };
