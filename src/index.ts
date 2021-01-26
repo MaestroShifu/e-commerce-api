@@ -1,21 +1,19 @@
-import startApp from "./infrastructure/webserver/server";
+import express from 'express';
+import startConnectDB from './infrastructure/orm/config-db';
+import { configServer, ServiceDb } from './infrastructure/webserver/server-service';
+import app from './infrastructure/webserver/server';
 
-const startServer = async () => {
-    const server = await startApp();
+const startDB = startConnectDB(ServiceDb, configServer);
 
-    const closeServer = () => {
-        if(server) {
-            // tslint:disable-next-line: no-console
-            console.log('Servidor cerrado papu :v');
-            process.exit(1);
-        }
-    };
-    // Se llama cuando se crece la lista de excepciones no controladas
-    process.on('uncaughtException', closeServer);
-    // Se llama cuando la aplicacion se encuentra en un estadoo indefinido
-    process.on('unhandledRejection', closeServer);
-    // Se llama cuando se cierra la terminal
-    process.on('SIGTERM', closeServer);
+export const startApp = (appExpress: express.Express, connectionDb: () => Promise<void>) => async () => {
+    // Manejo a la conexion a base de datos
+    await connectionDb();
+
+    // Manejo del servidor
+    appExpress.listen(configServer.PORT, () => {
+        // tslint:disable-next-line: no-console
+        console.log(`Servidor listo, corre en el puerto: ${configServer.PORT}`);
+    });
 };
 
-startServer();
+startApp(app, startDB)();
