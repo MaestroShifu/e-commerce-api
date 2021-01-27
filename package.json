@@ -12,6 +12,13 @@
     "start:dev": "nodemon",
     "start:debug": "node --inspect-brk node_modules/.bin/ts-node ./src/index.ts",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
+    "migration:up": "knex --knexfile=./src/infrastructure/orm/knexfile.ts migrate:up",
+    "migration:create": "knex --knexfile=./src/infrastructure/orm/knexfile.ts migrate:make",
+    "migration:rollback": "knex --knexfile=./src/infrastructure/orm/knexfile.ts migrate:rollback",
+    "migration:rollback:all": "knex --knexfile=./src/infrastructure/orm/knexfile.ts migrate:rollback --all",
+    "migrate:list": "knex --knexfile=./src/infrastructure/orm/knexfile.ts migrate:list",
+    "seed:create": "knex --knexfile=./src/infrastructure/orm/knexfile.ts seed:make",
+    "seed:run": "knex --knexfile=./src/infrastructure/orm/knexfile.ts seed:run",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
