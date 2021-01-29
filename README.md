@@ -18,6 +18,9 @@
 - Lista las migraciones: ```yarn migrate:list```
 - Sirve para crear seeders: ```yarn seed:create```
 - Sirve para lanzar todos los datos semilla: ```yarn seed:run```
+- Sirve para correr todos los test de la aplicacion: ```yarn test```
+- Sirve para estar pendiente a cambios en los test: ```yarn test:watch```
+- Sirve para hacer debug de los test: ```yarn test:debug```
 
 ## Manejar tslint VScode
 - Menu de comandos: ```Ctrl + Shift + P```

@@ -5,6 +5,21 @@ import xss from 'xss-clean';
 import compression from 'compression';
 import cors from 'cors';
 
+import { startConnectDB } from '../orm/config-db';
+import { configServer, ConfigServer, ServiceDb } from './server-service';
+
+interface IStartApp {
+    appExpress: express.Express;
+    connectionDb: () => Promise<void>;
+    config: ConfigServer;
+}
+
+// Start db config start DB
+const startDB = startConnectDB({
+    ...ServiceDb,
+    config: configServer
+});
+
 const app: express.Express = express();
 
 // Set security Http headers
@@ -21,4 +36,25 @@ app.use(compression());
 app.use(cors());
 app.options('*', cors());
 
-export default app;
+const startApp = (args: IStartApp) => async () => {
+    const { appExpress, connectionDb, config } = args;
+    // Manejo a la conexion a base de datos
+    await connectionDb();
+    // Manejo del servidor
+    appExpress.listen(config.PORT, () => {
+        // tslint:disable-next-line: no-console
+        console.log(`Servidor listo, corre en el puerto: ${config.PORT}`);
+    });
+};
+
+const startServer = startApp({
+    appExpress: app,
+    connectionDb: startDB,
+    config: configServer
+});
+
+export {
+    app,
+    startServer,
+    startApp
+};
