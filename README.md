@@ -9,7 +9,8 @@
 - Para correr en desarrollo: ```yarn start:dev```
 - Para correr en modo debug: ```yarn start:debug```
 - Crear transpilado de ts a js: ```yarn build```
-- Para revisar sintaxis del codigo: ```yarn tslint```
+- Para revisar sintaxis del codigo: ```yarn lint```
+- Para arrecglar sintaxis del codigo: ```yarn lint:fix```
 - Sirve para correr los test: ```yarn test```
 - Sirve para ejecutar la migraciones: ```yarn migration:up```
 - Sirve para crear migraciones: ```yarn migration:create```
@@ -22,7 +23,7 @@
 - Sirve para estar pendiente a cambios en los test: ```yarn test:watch```
 - Sirve para hacer debug de los test: ```yarn test:debug```
 
-## Manejar tslint VScode
+## Manejar eslint VScode
 - Menu de comandos: ```Ctrl + Shift + P```
-- Seleccionamos la siguiente opcion: ```TSLint: Manage workspace library execution"```
-- En el siguiente menu seleccionamos la opcion: ```enable workspace library execution```
+- Seleccionamos la siguiente opcion: ```ESLint: Fix all auto-fixable Problems"```
+- Auto formatea nuestro codigo

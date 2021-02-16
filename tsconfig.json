@@ -2,20 +2,21 @@
     "compilerOptions": {
         "module": "commonjs",
         "esModuleInterop": true,
-        "target": "ES6",
+        "target": "ESNext",
         "noImplicitAny": true,
         "moduleResolution": "node",
         "sourceMap": true,
         "outDir": "dist",
         "baseUrl": ".",
         "paths": {
-            "*": ["node_modules/*"]
+            "*": ["node_modules/*"],
+            "infrastructure": ["src/infrastructure"]
         },
         "typeRoots": [
             "@types", 
             "node_modules/@types"
         ]
     },
-    "include": ["src/**/*"],
-    "exclude": ["dist", "node_modules"]
+    "include": ["src/**/*", "test/**/*"],
+    "exclude": ["dist", "node_modules", "coverage"]
 }

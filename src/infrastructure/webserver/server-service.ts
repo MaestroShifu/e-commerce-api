@@ -4,15 +4,15 @@ import config from '../config/config';
 
 // Export libreria del orm
 export interface IServiceDb {
-    Knex: typeof Knex;
-    Model: typeof Model;
+  Knex: typeof Knex;
+  Model: typeof Model;
 }
 
 export const ServiceDb: IServiceDb = {
-    Knex,
-    Model
-}
+  Knex,
+  Model,
+};
 
 // Export configuracion del servidor
-export const configServer: ConfigServer = config;
 export type ConfigServer = typeof config;
+export const configServer: ConfigServer = config;

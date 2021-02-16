@@ -7,13 +7,13 @@ module.exports = {
   connection: configServer.DATABASE_URL,
   pool: {
     min: 2,
-    max: 10
+    max: 10,
   },
   migrations: {
-    directory:  path.join(path.dirname(__filename), './migrations'),
-    tableName: 'knex_migrations'
+    directory: path.join(path.dirname(__filename), './migrations'),
+    tableName: 'knex_migrations',
   },
   seeds: {
     directory: path.join(path.dirname(__filename), './seeds'),
-  }
+  },
 };
