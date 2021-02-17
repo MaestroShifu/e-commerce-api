@@ -1,18 +1,10 @@
 import { IServiceApp } from '../webserver/server-service';
 
-const loggerDB = () => {
-  const warn = (msg: string) => {
-    console.warn(msg);
-  };
-  const error = (msg: string) => {
-    console.error(msg);
-  };
-  const deprecate = (msg: string) => {
-    console.info(msg);
-  };
-  const debug = (msg: string) => {
-    console.debug(msg);
-  };
+const setLogDb = (Logger: IServiceApp['Logger']) => {
+  const warn = (msg: string) => { Logger.warn(msg); };
+  const error = (msg: string) => { Logger.error(msg); };
+  const deprecate = (msg: string) => { Logger.info(msg); };
+  const debug = (msg: string) => { Logger.debug(msg); };
   return {
     warn,
     error,
@@ -22,7 +14,9 @@ const loggerDB = () => {
 };
 
 const startConnectDB = (args: IServiceApp) => async () => {
-  const { Knex, Model, ConfigApp } = args;
+  const {
+    Knex, Model, ConfigApp, Logger,
+  } = args;
   const knex = Knex({
     client: 'pg',
     connection: ConfigApp.DATABASE_URL, // Url de coneccion para la base de datos
@@ -33,15 +27,15 @@ const startConnectDB = (args: IServiceApp) => async () => {
     },
     // Cuanto se debe esperar para generar un error al no conectarse a la db
     acquireConnectionTimeout: 10000,
-    log: loggerDB(),
+    log: setLogDb(Logger),
   });
   try {
     await knex.raw('SET timezone="UTC";');
     await knex.raw('select version();');
     Model.knex(knex);
-    console.log(`Se logro coneccion con la BD: ${ConfigApp.DATABASE_URL}`);
+    Logger.info(`Se logro coneccion con la BD: ${ConfigApp.DATABASE_URL}`);
   } catch (error) {
-    console.error(error);
+    Logger.error(error);
   }
 };
 

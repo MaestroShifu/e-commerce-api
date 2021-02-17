@@ -1,76 +1,104 @@
-import express, { Application } from 'express';
+import express from 'express';
 import { IServiceApp } from '../src/infrastructure/webserver/server-service';
-import { startApp } from '../src/infrastructure/webserver/server';
+import { listenCallback, startApp } from '../src/infrastructure/webserver/server';
 import startConnectDB from '../src/infrastructure/orm/config-db';
+import { getConfigAppMock, getConfigLoggerMock } from './utils/service-mock';
+import { IStateEnv } from '../src/infrastructure/config/config';
 
 type IStartConnectDB = () => Promise<void>;
 
 describe('Start web Server', () => {
   test('Start Server succesfull', async () => {
-    const ConfigApp: any = {
-      PORT: 3000,
-    };
-    const service: any = {
-      ConfigApp,
-    };
-    const appExpress = {
-      listen: jest.fn() as jest.MockedFunction<Application['listen']>,
-    } as unknown as jest.MockedFunction<express.Express>;
+    const Logger = getConfigLoggerMock();
+    const ConfigApp = getConfigAppMock({
+      ENV_NODE: IStateEnv.test,
+      DATABASE_DEBUG: true,
+    });
+    const listenMock = jest.fn();
+    const appExpress = jest.fn().mockReturnThis as unknown as jest.MockedFunction<express.Express>;
+    appExpress.listen = jest.fn((ConfigApp.PORT, listenMock));
     const connectionDb: jest.MockedFunction<IStartConnectDB> = jest.fn();
+    const service = {
+      ConfigApp,
+      Logger,
+    } as IServiceApp;
+    const listenApp = listenCallback(service);
+    listenApp();
+    expect(Logger.info).toBeCalled();
     const start = startApp({
       appExpress,
       connectionDb,
       service,
     });
     await start();
-    expect((appExpress.listen as jest.Mock).mock.calls[0][0]).toEqual(3000);
-    expect(connectionDb.mock.calls.length).toEqual(1);
+    expect(connectionDb).toBeCalled();
+    expect(appExpress.listen).toBeCalled();
+    expect(listenMock).toBeCalled();
+    expect(appExpress.listen).toHaveBeenCalledWith(ConfigApp.PORT, expect.anything());
   });
 
   test('Start connect db succesfull', async () => {
+    const rawMock = jest.fn();
     const Knex = jest.fn().mockReturnValue({
-      raw: jest.fn(),
+      raw: rawMock,
     }) as unknown as jest.MockedFunction<IServiceApp['Knex']>;
     const Model = jest.fn() as unknown as jest.MockedClass<IServiceApp['Model']>;
-    Model.knex = jest.fn() as jest.MockedFunction<typeof Model.knex>;
-    const ConfigApp: any = {
-      DATABASE_URL: 'URL_DATABASE',
+    Model.knex = jest.fn();
+    const Logger = getConfigLoggerMock();
+    const ConfigApp = getConfigAppMock({
+      ENV_NODE: IStateEnv.test,
       DATABASE_DEBUG: true,
-    };
-    const connectDB = startConnectDB({ Knex, Model, ConfigApp });
+    });
+    const argsMocked = {
+      Knex,
+      Model,
+      ConfigApp,
+      Logger,
+    } as IServiceApp;
+    const connectDB = startConnectDB(argsMocked);
     await connectDB();
-    expect(Knex.mock.calls.length).toEqual(1);
-    expect((Knex.mock.calls[0][0] as any).connection).toEqual('URL_DATABASE');
-    expect((Knex.mock.calls[0][0] as any).debug).toEqual(true);
-    const { raw } = Knex.mock.results[0].value;
-    expect((raw as jest.Mock).mock.calls[0][0]).toEqual('SET timezone="UTC";');
-    expect((raw as jest.Mock).mock.calls[1][0]).toEqual('select version();');
-    expect((Model.knex as jest.Mock).mock.calls.length).toEqual(1);
+    expect(Knex).toBeCalled();
+    expect(Knex).toHaveBeenCalledWith(expect.objectContaining({
+      connection: ConfigApp.DATABASE_URL,
+      debug: ConfigApp.DATABASE_DEBUG,
+    }));
+    expect(Knex).toHaveReturned();
+    expect(rawMock).toHaveBeenCalledTimes(2);
+    expect(rawMock).toHaveBeenNthCalledWith(1, 'SET timezone="UTC";');
+    expect(rawMock).toHaveBeenNthCalledWith(2, 'select version();');
+    expect(Model.knex).toBeCalled();
   });
 
   test('Start connect db error', async () => {
+    const rawMock = jest.fn().mockImplementation(() => {
+      throw new Error('ERROR_DB');
+    });
     const Knex = jest.fn().mockReturnValue({
-      raw: jest.fn(() => {
-        throw new Error('ERROR_DB');
-      }),
+      raw: rawMock,
     }) as unknown as jest.MockedFunction<IServiceApp['Knex']>;
     const Model = jest.fn() as unknown as jest.MockedClass<IServiceApp['Model']>;
-    Model.knex = jest.fn() as jest.MockedFunction<typeof Model.knex>;
-    const ConfigApp: any = {
-      DATABASE_URL: 'URL_DATABASE',
+    Model.knex = jest.fn();
+    const Logger = getConfigLoggerMock();
+    const ConfigApp = getConfigAppMock({
+      ENV_NODE: IStateEnv.test,
       DATABASE_DEBUG: true,
-    };
-    const connectDB = startConnectDB({ Knex, Model, ConfigApp });
-    try {
-      await connectDB();
-    } catch (error) {
-      expect(error.message).toEqual('ERROR_DB');
-    }
-    expect(Knex.mock.calls.length).toEqual(1);
-    expect((Knex.mock.calls[0][0] as any).connection).toEqual('URL_DATABASE');
-    expect((Knex.mock.calls[0][0] as any).debug).toEqual(true);
-    const { raw } = Knex.mock.results[0].value;
-    expect((raw as jest.Mock).mock.results.length).toEqual(1);
-    expect((Model.knex as jest.Mock).mock.calls.length).toEqual(0);
+    });
+    const argsMocked = {
+      Knex,
+      Model,
+      ConfigApp,
+      Logger,
+    } as IServiceApp;
+    const connectDB = startConnectDB(argsMocked);
+    await connectDB();
+    expect(Knex).toBeCalled();
+    expect(Knex).toHaveBeenCalledWith(expect.objectContaining({
+      connection: ConfigApp.DATABASE_URL,
+      debug: ConfigApp.DATABASE_DEBUG,
+    }));
+    expect(Knex).toHaveReturned();
+    expect(rawMock).toHaveBeenCalledWith('SET timezone="UTC";');
+    expect(rawMock).toThrow();
+    expect(Model.knex).toHaveBeenCalledTimes(0);
   });
 });

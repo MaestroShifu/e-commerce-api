@@ -32,15 +32,17 @@ app.use(compression());
 app.use(cors());
 app.options('*', cors());
 
+const listenCallback = (service: IServiceApp) => () => {
+  const { ConfigApp, Logger } = service;
+  Logger.info(`Servidor listo, corre en el puerto: ${ConfigApp.PORT}`);
+};
+
 const startApp = (args: IStartApp) => async () => {
   const { appExpress, connectionDb, service } = args;
-  const { ConfigApp } = service;
   // Manejo a la conexion a base de datos
   await connectionDb();
   // Manejo del servidor
-  appExpress.listen(ConfigApp.PORT, () => {
-    console.log(`Servidor listo, corre en el puerto: ${ConfigApp.PORT}`);
-  });
+  appExpress.listen(service.ConfigApp.PORT, listenCallback(service));
 };
 
 const startServer = startApp({
@@ -49,4 +51,6 @@ const startServer = startApp({
   service: ServiceApp,
 });
 
-export { app, startServer, startApp };
+export {
+  app, startServer, startApp, listenCallback,
+};
