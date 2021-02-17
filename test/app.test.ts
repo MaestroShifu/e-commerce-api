@@ -1,14 +1,17 @@
 import express, { Application } from 'express';
+import { IServiceApp } from '../src/infrastructure/webserver/server-service';
 import { startApp } from '../src/infrastructure/webserver/server';
 import startConnectDB from '../src/infrastructure/orm/config-db';
-import { IServiceDb } from '../src/infrastructure/webserver/server-service';
 
 type IStartConnectDB = () => Promise<void>;
 
 describe('Start web Server', () => {
   test('Start Server succesfull', async () => {
-    const config: any = {
+    const ConfigApp: any = {
       PORT: 3000,
+    };
+    const service: any = {
+      ConfigApp,
     };
     const appExpress = {
       listen: jest.fn() as jest.MockedFunction<Application['listen']>,
@@ -17,7 +20,7 @@ describe('Start web Server', () => {
     const start = startApp({
       appExpress,
       connectionDb,
-      config,
+      service,
     });
     await start();
     expect((appExpress.listen as jest.Mock).mock.calls[0][0]).toEqual(3000);
@@ -27,14 +30,14 @@ describe('Start web Server', () => {
   test('Start connect db succesfull', async () => {
     const Knex = jest.fn().mockReturnValue({
       raw: jest.fn(),
-    }) as unknown as jest.MockedFunction<IServiceDb['Knex']>;
-    const Model = jest.fn() as unknown as jest.MockedClass<IServiceDb['Model']>;
+    }) as unknown as jest.MockedFunction<IServiceApp['Knex']>;
+    const Model = jest.fn() as unknown as jest.MockedClass<IServiceApp['Model']>;
     Model.knex = jest.fn() as jest.MockedFunction<typeof Model.knex>;
-    const config: any = {
+    const ConfigApp: any = {
       DATABASE_URL: 'URL_DATABASE',
       DATABASE_DEBUG: true,
     };
-    const connectDB = startConnectDB({ Knex, Model, config });
+    const connectDB = startConnectDB({ Knex, Model, ConfigApp });
     await connectDB();
     expect(Knex.mock.calls.length).toEqual(1);
     expect((Knex.mock.calls[0][0] as any).connection).toEqual('URL_DATABASE');
@@ -50,14 +53,14 @@ describe('Start web Server', () => {
       raw: jest.fn(() => {
         throw new Error('ERROR_DB');
       }),
-    }) as unknown as jest.MockedFunction<IServiceDb['Knex']>;
-    const Model = jest.fn() as unknown as jest.MockedClass<IServiceDb['Model']>;
+    }) as unknown as jest.MockedFunction<IServiceApp['Knex']>;
+    const Model = jest.fn() as unknown as jest.MockedClass<IServiceApp['Model']>;
     Model.knex = jest.fn() as jest.MockedFunction<typeof Model.knex>;
-    const config: any = {
+    const ConfigApp: any = {
       DATABASE_URL: 'URL_DATABASE',
       DATABASE_DEBUG: true,
     };
-    const connectDB = startConnectDB({ Knex, Model, config });
+    const connectDB = startConnectDB({ Knex, Model, ConfigApp });
     try {
       await connectDB();
     } catch (error) {

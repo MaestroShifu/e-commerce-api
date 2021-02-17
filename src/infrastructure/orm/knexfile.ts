@@ -1,10 +1,10 @@
 import path from 'path';
-import { configServer } from '../webserver/server-service';
+import { ServiceApp } from '../webserver/server-service';
 
 // File para el cli de knex
 module.exports = {
   client: 'pg',
-  connection: configServer.DATABASE_URL,
+  connection: ServiceApp.ConfigApp.DATABASE_URL,
   pool: {
     min: 2,
     max: 10,

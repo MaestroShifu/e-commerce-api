@@ -1,6 +1,4 @@
-import { IServiceDb, ConfigServer } from '../webserver/server-service';
-
-type IStartConnectDB = IServiceDb & { config: ConfigServer };
+import { IServiceApp } from '../webserver/server-service';
 
 const loggerDB = () => {
   const warn = (msg: string) => {
@@ -23,12 +21,12 @@ const loggerDB = () => {
   };
 };
 
-const startConnectDB = (args: IStartConnectDB) => async () => {
-  const { Knex, Model, config } = args;
+const startConnectDB = (args: IServiceApp) => async () => {
+  const { Knex, Model, ConfigApp } = args;
   const knex = Knex({
     client: 'pg',
-    connection: config.DATABASE_URL, // Url de coneccion para la base de datos
-    debug: config.DATABASE_DEBUG, // Imprimir las sentencias SQL en consola
+    connection: ConfigApp.DATABASE_URL, // Url de coneccion para la base de datos
+    debug: ConfigApp.DATABASE_DEBUG, // Imprimir las sentencias SQL en consola
     pool: { // Sirve para determinar una cantidad maxima de conecciones a la base de datos
       min: 2,
       max: 10,
@@ -41,7 +39,7 @@ const startConnectDB = (args: IStartConnectDB) => async () => {
     await knex.raw('SET timezone="UTC";');
     await knex.raw('select version();');
     Model.knex(knex);
-    console.log(`Se logro coneccion con la BD: ${config.DATABASE_URL}`);
+    console.log(`Se logro coneccion con la BD: ${ConfigApp.DATABASE_URL}`);
   } catch (error) {
     console.error(error);
   }

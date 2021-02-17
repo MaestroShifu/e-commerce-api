@@ -1,18 +1,15 @@
 import Knex from 'knex';
 import { Model } from 'objection';
-import config from '../config/config';
+import ConfigApp from '../config/config';
 
-// Export libreria del orm
-export interface IServiceDb {
+export interface IServiceApp {
   Knex: typeof Knex;
   Model: typeof Model;
+  ConfigApp: typeof ConfigApp;
 }
 
-export const ServiceDb: IServiceDb = {
+export const ServiceApp: IServiceApp = {
   Knex,
   Model,
+  ConfigApp,
 };
-
-// Export configuracion del servidor
-export type ConfigServer = typeof config;
-export const configServer: ConfigServer = config;

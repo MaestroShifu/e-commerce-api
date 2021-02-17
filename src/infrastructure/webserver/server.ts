@@ -5,19 +5,16 @@ import xss from 'xss-clean';
 import compression from 'compression';
 import cors from 'cors';
 import startConnectDB from '../orm/config-db';
-import { configServer, ConfigServer, ServiceDb } from './server-service';
+import { IServiceApp, ServiceApp } from './server-service';
 
 interface IStartApp {
-  appExpress: express.Express
-  connectionDb: () => Promise<void>
-  config: ConfigServer
+  appExpress: express.Express;
+  connectionDb: () => Promise<void>;
+  service: IServiceApp;
 }
 
 // Start db config start DB
-const startDB = startConnectDB({
-  ...ServiceDb,
-  config: configServer,
-});
+const startDB = startConnectDB(ServiceApp);
 
 const app: express.Express = express();
 
@@ -36,19 +33,20 @@ app.use(cors());
 app.options('*', cors());
 
 const startApp = (args: IStartApp) => async () => {
-  const { appExpress, connectionDb, config } = args;
+  const { appExpress, connectionDb, service } = args;
+  const { ConfigApp } = service;
   // Manejo a la conexion a base de datos
   await connectionDb();
   // Manejo del servidor
-  appExpress.listen(config.PORT, () => {
-    console.log(`Servidor listo, corre en el puerto: ${config.PORT}`);
+  appExpress.listen(ConfigApp.PORT, () => {
+    console.log(`Servidor listo, corre en el puerto: ${ConfigApp.PORT}`);
   });
 };
 
 const startServer = startApp({
   appExpress: app,
   connectionDb: startDB,
-  config: configServer,
+  service: ServiceApp,
 });
 
 export { app, startServer, startApp };
